@@ -4,19 +4,20 @@
             <div class="row">
                 <div class="col-md-8 offset-md-2">
                     <!-- Add new Task -->
-                     <NewTask @added="handleAddedTask"></NewTask>
+                    <NewTask @added="handleAddedTask"></NewTask>
                    
                     <!-- List of uncompleted tasks -->
-                     <Tasks :tasks="uncompletedTasks"></Tasks>
+                    <Tasks :tasks="uncompletedTasks" @updated="handleUpdatedTask"></Tasks>
                     
                     <!-- show toggle button -->
-                   <div class="text-center my-3" v-show="showToggleCompletedBtn">
+                    <div class="text-center my-3" v-show="showToggleCompletedBtn">
                         <button class="btn btn-sm btn-secondary"
-                            @click="$event =>showCompletedTasks = !showCompletedTasks">
-                            <span v-if="!showCompletedTasks">show completed</span>
+                            @click="showCompletedTasks = !showCompletedTasks">
+                            <span v-if="!showCompletedTasks">Show completed</span>
                             <span v-else>Hide completed</span>
                         </button>
-                   </div>
+                    </div>
+                    
                     <!-- list of completed tasks -->
                     <Tasks :tasks="completedTasks" :show="completedTaskIsVisible && showCompletedTasks"></Tasks>
                 </div>
@@ -27,31 +28,33 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import {allTasks, createTask} from "../http/task-api";
+import { allTasks, createTask, updateTask } from "../http/task-api";  // Import correct
 import Tasks from '@/components/tasks/Tasks.vue';
 import NewTask from '@/components/tasks/NewTask.vue';
 
-
-const tasks = ref([])
+const tasks = ref([]);
 
 onMounted(async () => {
-    const {data} = await allTasks()
-    tasks.value = data.data 
-})
+    const { data } = await allTasks();
+    tasks.value = data.data;
+});
 
-const uncompletedTasks = computed(() => tasks.value.filter(task => !task.is_completed))
-const completedTasks = computed(() => tasks.value.filter(task => task.is_completed))
-const showToggleCompletedBtn = computed(
-    () => uncompletedTasks.value.length>0 && completedTasks.value.length>0)
+const uncompletedTasks = computed(() => tasks.value.filter(task => !task.is_completed));
+const completedTasks = computed(() => tasks.value.filter(task => task.is_completed));
+const showToggleCompletedBtn = computed(() => uncompletedTasks.value.length > 0 && completedTasks.value.length > 0);
+const completedTaskIsVisible = computed(() => uncompletedTasks.value.length == 0 || completedTasks.value.length > 0);
+const showCompletedTasks = ref(false);
 
-const completedTaskIsVisible = computed(
-    () => uncompletedTasks.value.length ==0 || completedTasks.value.length >0)
+const handleAddedTask = async (newTask) => {
+    const { data: createTask } = await createTask(newTask);
+    tasks.value.unshift(createTask.data);
+};
 
-const showCompletedTasks = ref(false)
-
-const handleAddedTask = async ( NewTask) => {
-    const {data: createTask} = await createTask(NewTask)
-    tasks.value.unshift(createTask.data)
-}
+const handleUpdatedTask = async (task) => {
+    const { data: updatedTask } = await updateTask(task.id, {
+        name: task.name
+    });
+    const currentTask = tasks.value.find(item => item.id === task.id);
+    currentTask.name = updatedTask.data.name;
+};
 </script>
-
