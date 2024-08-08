@@ -1,9 +1,9 @@
 <template>
     <div class="task-actions">
-        <button class="btn btn-sm btn-circle btn-outline-secondary me-1" @click="$event =>('edit')">
+        <button class="btn btn-sm btn-circle btn-outline-secondary me-1" @click="$emit('edit')">
             <IconPencil></IconPencil>
         </button>
-        <button class="btn btn-sm btn-circle btn-outline-danger" @click="$event =>('remove')">
+        <button class="btn btn-sm btn-circle btn-outline-danger" @click="$emit('remove')">
             <IconTrash></IconTrash>
         </button>
     </div>
@@ -13,5 +13,5 @@
 import IconPencil from '../icons/IconPencil.vue';
 import IconTrash from '../icons/IconTrash.vue';
 
-const emit = defineEmits(['edit', 'remove'])
+const emit = defineEmits(['edit', 'remove']);
 </script>
