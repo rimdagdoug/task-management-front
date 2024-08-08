@@ -24,7 +24,7 @@
                 <span v-else>{{task.name}}</span>
             </div>
         </div>
-        <TaskActions 
+        <TaskAction 
             @edit="isEdit = true" 
             v-show="!isEdit" 
             @remove="removeTask"
