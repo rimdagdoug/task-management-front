@@ -3,7 +3,10 @@
         <ul class="list-group list-group-flush">
            <Task  v-for="task in tasks"
             :task="task" :key="task.id"
-            @updated="$event => $emit('updated', $event)"></Task>
+            @updated="$emit('updated', $event)" 
+            @completed="$emit('completed', $event)" 
+            
+            ></Task>
         </ul>
     </div>
 </template>
