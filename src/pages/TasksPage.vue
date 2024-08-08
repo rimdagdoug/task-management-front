@@ -7,25 +7,29 @@
                     <NewTask @added="handleAddedTask"></NewTask>
                    
                     <!-- List of uncompleted tasks -->
-                    <Tasks :tasks="uncompletedTasks" 
-                    @updated="handleUpdatedTask"
-                    @completed="handleCompletedTask"
-                />
+                    <Tasks 
+                        :tasks="uncompletedTasks" 
+                        @updated="handleUpdatedTask"
+                        @completed="handleCompletedTask"
+                        @removed="handleRemovedTask"
+                    />
                     
                     <!-- show toggle button -->
                     <div class="text-center my-3" v-show="showToggleCompletedBtn">
                         <button class="btn btn-sm btn-secondary"
-                            @click="showCompletedTasks = !showCompletedTasks">
+                            @click="toggleShowCompletedTasks">
                             <span v-if="!showCompletedTasks">Show completed</span>
                             <span v-else>Hide completed</span>
                         </button>
                     </div>
                     
                     <!-- list of completed tasks -->
-                    <Tasks :tasks="completedTasks" 
-                        :show="completedTasksIsVisible && showCompletedTasks" 
+                    <Tasks 
+                        :tasks="completedTasks" 
+                        :show="showCompletedTasks" 
                         @updated="handleUpdatedTask"
                         @completed="handleCompletedTask"
+                        @removed="handleRemovedTask"
                     />
                 </div>
             </div>
@@ -35,7 +39,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue';
-import { allTasks, createTask, updateTask, completeTask } from "../http/task-api";
+import { allTasks, createTask, updateTask, completeTask, removeTask } from "../http/task-api";
 import Tasks from '@/components/tasks/Tasks.vue';
 import NewTask from '@/components/tasks/NewTask.vue';
 
@@ -49,8 +53,11 @@ onMounted(async () => {
 const uncompletedTasks = computed(() => tasks.value.filter(task => !task.is_completed));
 const completedTasks = computed(() => tasks.value.filter(task => task.is_completed));
 const showToggleCompletedBtn = computed(() => uncompletedTasks.value.length > 0 && completedTasks.value.length > 0);
-const completedTaskIsVisible = computed(() => uncompletedTasks.value.length == 0 || completedTasks.value.length > 0);
 const showCompletedTasks = ref(false);
+
+const toggleShowCompletedTasks = () => {
+    showCompletedTasks.value = !showCompletedTasks.value;
+};
 
 const handleAddedTask = async (newTask) => {
     const { data: createTask } = await createTask(newTask);
@@ -68,8 +75,14 @@ const handleUpdatedTask = async (task) => {
 const handleCompletedTask = async (task) => {
     const { data: updatedTask } = await completeTask(task.id, {
         is_completed: task.is_completed
-    })
-    const currentTask = tasks.value.find(item => item.id === task.id)
-    currentTask.is_completed = updatedTask.data.is_completed
-}
+    });
+    const currentTask = tasks.value.find(item => item.id === task.id);
+    currentTask.is_completed = updatedTask.data.is_completed;
+};
+
+const handleRemovedTask = async (task) => {
+    await removeTask(task.id);
+    const index = tasks.value.findIndex(item => item.id === task.id);
+    tasks.value.splice(index, 1);
+};
 </script>
