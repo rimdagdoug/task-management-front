@@ -48,7 +48,7 @@ import NewTask from '@/components/tasks/NewTask.vue';
 const store = useTaskStore()
 const { completedTasks, uncompletedTasks } = storeToRefs(store)
 const {fetchAllTasks} = store
- store.task.name = "First task updated"
+ //store.task.name = "First task updated"
 
 const tasks = ref([])
 onMounted(async () => {
