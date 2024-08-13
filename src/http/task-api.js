@@ -1,6 +1,8 @@
 import api from "./api"
 
-const resource = "/tasks"
+const apiPath = import.meta.env.VITE_API_PATH;
+console.log(import.meta.env); // Pour vérifier que la variable est bien chargée
+const resource = apiPath + "/tasks";
 
 export const allTasks = () => api.get(resource)
 
